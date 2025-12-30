@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neon File Uploader with Music</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --neon: #00fff2;
+  --bg: radial-gradient(circle at top, #000 60%, #020f0f);
+}
+
+body {
+  font-family: 'Share Tech Mono', monospace;
+  background: var(--bg);
+  color: var(--neon);
+  text-align: center;
+  padding: 40px 10px;
+  min-height: 100vh;
+  overflow-x: hidden;
+  transition: background 0.6s, color 0.6s;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+h1 {
+  text-shadow: 0 0 10px var(--neon), 0 0 30px var(--neon);
+  font-size: 2.3em;
+  margin-bottom: 25px;
+  letter-spacing: 2px;
+}
+
+input, button, textarea {
+  margin: 10px;
+  padding: 12px;
+  width: 90%;
+  max-width: 360px;
+  border: 2px solid var(--neon);
+  background: transparent;
+  color: var(--neon);
+  border-radius: 8px;
+  outline: none;
+  font-size: 16px;
+  transition: 0.3s;
+}
+
+button {
+  cursor: pointer;
+  font-weight: bold;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0,255,242,0.4), transparent);
+  transition: 0.4s;
+  z-index: -1;
+}
+
+button:hover::before {
+  left: 100%;
+}
+
+button:hover {
+  box-shadow: 0 0 25px var(--neon);
+  transform: scale(1.03);
+}
+
+textarea {
+  height: 160px;
+  resize: none;
+  max-width: 500px;
+  width: 90%;
+}
+
+.preview-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 20px;
+  gap: 20px;
+}
+
+.preview-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 140px;
+  transition: 0.3s;
+}
+
+.preview-box:hover {
+  transform: scale(1.05);
+}
+
+.preview {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border: 2px solid var(--neon);
+  border-radius: 10px;
+  box-shadow: 0 0 15px var(--neon);
+  transition: 0.3s;
+}
+
+video, audio {
+  width: 120px;
+  margin-top: 5px;
+  border-radius: 8px;
+  outline: 2px solid var(--neon);
+  box-shadow: 0 0 10px var(--neon);
+}
+
+.progress {
+  width: 120px;
+  height: 6px;
+  background: rgba(0,255,242,0.2);
+  border-radius: 5px;
+  margin-top: 6px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-bar {
+  width: 0%;
+  height: 100%;
+  background: var(--neon);
+  box-shadow: 0 0 15px var(--neon);
+  transition: width 0.2s ease-out;
+}
+
+.percentage {
+  font-size: 14px;
+  margin-top: 4px;
+  font-family: 'Orbitron', monospace;
+  color: var(--neon);
+}
+
+.copy-btn {
+  display: none;
+}
+
+.theme-toggle {
+  margin-top: 20px;
+  background: transparent;
+  color: var(--neon);
+  border: 2px solid var(--neon);
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: 0.3s;
+  align-self: center;
+}
+
+.theme-toggle:hover {
+  box-shadow: 0 0 15px var(--neon);
+}
+
+footer {
+  margin-top: 20px;
+  font-family: 'Orbitron', monospace;
+  font-size: 14px;
+  letter-spacing: 1.5px;
+  color: var(--neon);
+  text-shadow: 0 0 10px var(--neon), 0 0 20px var(--neon);
+}
+
+/* Music Button */
+.music-btn {
+  margin-top: 20px;
+  background: transparent;
+  color: var(--neon);
+  border: 2px solid var(--neon);
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 50px;
+  cursor: pointer;
+  position: relative;
+  box-shadow: 0 0 15px var(--neon);
+  overflow: hidden;
+}
+
+.music-btn::after {
+  content: "";
+  position: absolute;
+  width: 200%;
+  height: 200%;
+  background: rgba(0,255,242,0.3);
+  top: -50%;
+  left: -50%;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+  z-index: -1;
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.8); opacity: 0.6; }
+  50% { transform: scale(1.2); opacity: 0.3; }
+  100% { transform: scale(0.8); opacity: 0.6; }
+}
+
+/* Music Wave */
+#music-wave {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+  gap: 2px;
+  height: 30px;
+}
+
+.bar {
+  width: 4px;
+  background: var(--neon);
+  animation: wave 1s infinite;
+  animation-delay: calc(var(--i) * 0.1s);
+}
+
+@keyframes wave {
+  0%, 100% { height: 4px; }
+  50% { height: 30px; }
+}
+
+@media (max-width:600px){
+  .preview-box{width:100px;}
+  .preview{width:90px;height:90px;}
+  video,audio{width:90px;}
+  .bar{width:2px;}
+}
+</style>
+</head>
+<body>
+
+<h1>✨ Neon File Uploader ✨</h1>
+
+<input type="file" id="fileInput" accept="image/*,video/*,audio/*" multiple>
+<br>
+<button onclick="uploadToCatbox()">🚀 Upload All</button>
+
+<div class="preview-container" id="previewContainer"></div>
+
+<br>
+<textarea id="output" placeholder="Your Catbox URLs will appear here..." readonly></textarea>
+<br>
+<button id="copyButton" class="copy-btn" onclick="copyURLs()">📋 Copy All URLs</button>
+
+<button class="music-btn" id="musicBtn">🎵 Play Music</button>
+<div id="music-wave"></div>
+
+<button class="theme-toggle" id="themeBtn" onclick="toggleTheme()">🌈 Switch Theme</button>
+
+<footer>© 2025 Neon File Uploader — All Rights Reserved</footer>
+
+<audio id="bgMusic" loop src="https://files.catbox.moe/mi9rmf.mp3"></audio>
+
+<script>
+const fileInput = document.getElementById('fileInput');
+const previewContainer = document.getElementById('previewContainer');
+const output = document.getElementById('output');
+const copyBtn = document.getElementById('copyButton');
+const themeBtn = document.getElementById('themeBtn');
+const musicBtn = document.getElementById('musicBtn');
+const bgMusic = document.getElementById('bgMusic');
+const musicWave = document.getElementById('music-wave');
+
+let theme = 'cyan';
+let musicPlaying = false;
+
+function toggleTheme(){
+  if(theme==='cyan'){
+    document.documentElement.style.setProperty('--neon','#ff00ff');
+    document.documentElement.style.setProperty('--bg','radial-gradient(circle at top, #100010 60%, #1a001a)');
+    themeBtn.innerText='💠 Switch to Cyan';
+    theme='magenta';
+  }else{
+    document.documentElement.style.setProperty('--neon','#00fff2');
+    document.documentElement.style.setProperty('--bg','radial-gradient(circle at top, #000 60%, #020f0f)');
+    themeBtn.innerText='🌈 Switch Theme';
+    theme='cyan';
+  }
+}
+
+// Music button
+musicBtn.addEventListener('click',()=>{
+  if(!musicPlaying){
+    bgMusic.play();
+    createWave();
+    musicBtn.innerText='🔊 Pause Music';
+    musicPlaying=true;
+  }else{
+    bgMusic.pause();
+    musicWave.innerHTML='';
+    musicBtn.innerText='🎵 Play Music';
+    musicPlaying=false;
+  }
+});
+
+// Music wave
+function createWave(){
+  musicWave.innerHTML='';
+  for(let i=0;i<20;i++){
+    const bar=document.createElement('div');
+    bar.className='bar';
+    bar.style.setProperty('--i',i);
+    musicWave.appendChild(bar);
+  }
+}
+
+fileInput.addEventListener('change', () => {
+  previewContainer.innerHTML='';
+  const files=Array.from(fileInput.files);
+  files.forEach(file=>{
+    const reader=new FileReader();
+    reader.onload=e=>{
+      const box=document.createElement('div');
+      box.className='preview-box';
+      if(file.type.startsWith('image/')){
+        const img=document.createElement('img');
+        img.src=e.target.result;
+        img.className='preview';
+        box.appendChild(img);
+      }else if(file.type.startsWith('video/')){
+        const video=document.createElement('video');
+        video.src=e.target.result;
+        video.controls=true;
+        box.appendChild(video);
+      }else if(file.type.startsWith('audio/')){
+        const audio=document.createElement('audio');
+        audio.src=e.target.result;
+        audio.controls=true;
+        box.appendChild(audio);
+      }
+      const progress=document.createElement('div'); progress.className='progress';
+      const bar=document.createElement('div'); bar.className='progress-bar';
+      progress.appendChild(bar);
+      const percentLabel=document.createElement('div'); percentLabel.className='percentage'; percentLabel.innerText='0%';
+      box.appendChild(progress); box.appendChild(percentLabel);
+      previewContainer.appendChild(box);
+      file.progressBar=bar; file.percentLabel=percentLabel;
+    };
+    reader.readAsDataURL(file);
+  });
+});
+
+async function uploadToCatbox(){
+  const files=Array.from(fileInput.files);
+  if(!files.length)return alert('Please select at least one file!');
+  output.value=`Uploading ${files.length} file(s)... ⏳`;
+  copyBtn.style.display='none';
+  let urls=[];
+  await Promise.all(files.map(file=>new Promise(resolve=>{
+    const formData=new FormData();
+    formData.append('reqtype','fileupload');
+    formData.append('fileToUpload',file);
+    const xhr=new XMLHttpRequest();
+    xhr.open('POST','https://catbox.moe/user/api.php',true);
+    xhr.upload.onprogress=e=>{
+      if(e.lengthComputable && file.progressBar && file.percentLabel){
+        const percent=Math.round((e.loaded/e.total)*100);
+        file.progressBar.style.width=percent+'%';
+        file.percentLabel.innerText=percent+'%';
+      }
+    };
+    xhr.onload=()=>{
+      const url=xhr.status===200?xhr.responseText.trim():`❌ Upload failed: HTTP ${xhr.status}`;
+      urls.push(url.startsWith('http')?url:`❌ Upload failed: ${url}`);
+      output.value=urls.join('\n');
+      copyBtn.style.display='inline-block';
+      resolve();
+    };
+    xhr.onerror=()=>{
+      urls.push(`❌ Error uploading ${file.name}`);
+      output.value=urls.join('\n');
+      resolve();
+    };
+    xhr.send(formData);
+  })));
+  output.value=urls.join('\n');
+}
+
+function copyURLs(){
+  navigator.clipboard.writeText(output.value);
+  copyBtn.innerText='✅ URLs Copied!';
+  setTimeout(()=>copyBtn.innerText='📋 Copy All URLs',2000);
+}
+</script>
+
+</body>
+</html>
